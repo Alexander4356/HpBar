@@ -1,39 +1,45 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class HealthBar : MonoBehaviour
 {
-    [SerializeField] private Slider _healthBar;
-    [SerializeField] private float _changeAmount;
-    [SerializeField] private float _changeSpeed;
+    [SerializeField] private Slider _slider;
+    [SerializeField] private Player Player;
+    
+    private Coroutine _coroutine;
+    private float _speed = 0.1f;
 
-    private float _targetValue;
-
-    private void Start()
+    private void OnEnable()
     {
-        _targetValue = _healthBar.value;
+        Player.HealthChanged += OnHealthChanged;
     }
 
-    public void DecreaseHealth()
+    private void OnDisable()
     {
-        if (_targetValue > 0)
+        Player.HealthChanged -= OnHealthChanged;
+    }
+
+    private void OnHealthChanged(float health)
+    {
+        if (_coroutine != null)
         {
-            _targetValue -= _changeAmount;
+            StopCoroutine(_coroutine);
+            _coroutine = null;
         }
+
+        _coroutine = StartCoroutine(Changing(health));
     }
 
-    public void IncreaseHealth()
+    private IEnumerator Changing(float health)
     {
-        if (_targetValue < 100)
+        while (Mathf.Abs(_slider.value - health) > 0)
         {
-            _targetValue += _changeAmount;
-        }
-    }
+            _slider.value = Mathf.MoveTowards(_slider.value, health, _speed);
 
-    private void Update()
-    {
-        _healthBar.value = Mathf.MoveTowards(_healthBar.value, _targetValue, _changeSpeed * Time.deltaTime);
+            yield return null;
+        }
     }
 }
