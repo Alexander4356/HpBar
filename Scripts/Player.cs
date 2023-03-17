@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] private float _changeValue;
     [SerializeField] private float _maxHealth;
 
     public event Action<float> HealthChanged;
@@ -17,20 +16,20 @@ public class Player : MonoBehaviour
         HealthChanged?.Invoke(_health);
     }
 
-    public void Heal()
+    public void Heal(float healingAmount)
     {
         if (_health < _maxHealth)
         {
-            _health += _changeValue;
+            _health += healingAmount;
             HealthChanged?.Invoke(_health);
         }
     }
 
-    public void Damage()
+    public void Damage(float damageAmount)
     {
         if (_health > 0)
         {
-            _health -= _changeValue;
+            _health -= damageAmount;
             HealthChanged?.Invoke(_health);
         }
     }
